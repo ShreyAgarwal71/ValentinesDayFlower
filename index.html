@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Valentine's Day Flower Animation</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: #fce4ec;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      let bloomProgress = 0;
+
+      function setup() {
+        createCanvas(windowWidth, windowHeight);
+        angleMode(DEGREES);
+      }
+
+      function draw() {
+        background('#fce4ec');
+        translate(width / 2, height / 2 + 100); 
+
+        stroke('#388e3c'); 
+        strokeWeight(8);
+        line(0, 0, 0, 150);
+
+        noStroke();
+        fill('#ffeb3b');
+        ellipse(0, 0, 50, 50);
+
+        if (bloomProgress < 1) {
+          bloomProgress = min(1, bloomProgress + 1 / (60 * 5)); // assuming roughly 60 fps
+        }
+
+        let numPetals = 8;
+        let petalLength = 100 * bloomProgress; 
+        let petalWidth = 50 * bloomProgress;   
+
+        fill('#e91e63'); 
+        for (let i = 0; i < numPetals; i++) {
+          push();
+          rotate((360 / numPetals) * i);
+          ellipse(0, -(petalLength / 2 + 25), petalWidth, petalLength);
+          pop();
+        }
+
+        fill(0);
+        noStroke();
+        textAlign(CENTER, CENTER);
+        textSize(32);
+        text("Happy Valentine's Day!", 0, 200);
+      }
+      function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
+      }
+    </script>
+  </body>
+</html>
