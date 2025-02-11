@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Valentine's Day Flower Animation</title>
-    <!-- Load p5.js -->
+    <title>Romantic Bouquet Animation</title>
+    <!-- Load p5.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.min.js"></script>
     <style>
+      /* Remove default margins and ensure the canvas fills the screen */
       body {
         margin: 0;
         overflow: hidden;
-        background: #fce4ec; /* Soft pink */
       }
       canvas {
         display: block;
@@ -19,87 +19,122 @@
   </head>
   <body>
     <script>
-      let bloomProgress = 0;
-      let roses = [];
+      let bouquet = []; // Array to hold bouquet flower objects
+      let roses = [];   // Array to hold falling rose objects
 
       function setup() {
         createCanvas(windowWidth, windowHeight);
         angleMode(DEGREES);
 
-        // Create falling roses
-        for (let i = 0; i < 25; i++) {
-          roses.push(new Rose(random(width), random(-height, 0), random(3, 5)));
+        // Create several flowers for the bouquet.
+        // The parameters: x position, y position, bloomDelay (in frames), petal color, center color.
+        bouquet.push(new Flower(width/2 - 100, height/2 + 50, 60, '#e91e63', '#ffeb3b'));
+        bouquet.push(new Flower(width/2,      height/2 + 30, 120, '#ec407a', '#ffeb3b'));
+        bouquet.push(new Flower(width/2 + 100, height/2 + 70, 90, '#f06292', '#ffeb3b'));
+        bouquet.push(new Flower(width/2 - 50,  height/2 + 100, 150, '#d81b60', '#ffeb3b'));
+
+        // Create falling roses; adjust the number for denser or sparser falling effect.
+        for (let i = 0; i < 30; i++) {
+          roses.push(new Rose(random(width), random(-height, 0), random(2, 5)));
         }
       }
 
       function draw() {
-        background('#fce4ec'); // Soft pink background
-        translate(width / 2, height / 2 + 100); // Move to center
-
-        // Draw the stem
-        stroke('#388e3c');
-        strokeWeight(8);
-        line(0, 0, 0, 150);
-
-        // Flower center
-        noStroke();
-        fill('#ffeb3b');
-        ellipse(0, 0, 50, 50);
-
-        // Bloom animation
-        if (bloomProgress < 1) {
-          bloomProgress = min(1, bloomProgress + 1 / (60 * 5));
+        // Use a dark, romantic background
+        background('#1a1a2e');
+        
+        // Update and display each flower in the bouquet
+        for (let f of bouquet) {
+          f.update();
+          f.display();
         }
-
-        // Petal drawing
-        let numPetals = 8;
-        let petalLength = 100 * bloomProgress;
-        let petalWidth = 50 * bloomProgress;
-
-        fill('#e91e63'); // Pink petals
-        for (let i = 0; i < numPetals; i++) {
-          push();
-          rotate((360 / numPetals) * i);
-          ellipse(0, -(petalLength / 2 + 25), petalWidth, petalLength);
-          pop();
-        }
-
-        // Message
-        fill(0);
-        textAlign(CENTER, CENTER);
-        textSize(32);
-        text("Happy Valentine's Day, Maren!", 0, 200);
-
-        // Draw falling roses
+        
+        // Update and display each falling rose
         for (let r of roses) {
           r.fall();
           r.display();
         }
+        
+        // Display a romantic message at the bottom of the canvas
+        fill('#ffffff');
+        textAlign(CENTER, CENTER);
+        textSize(36);
+        text("Happy Valentine's Day, Maren", width / 2, height - 50);
       }
 
+      // Adjust canvas if the window is resized
       function windowResized() {
         resizeCanvas(windowWidth, windowHeight);
       }
 
+      // Flower class: each flower has its own position, bloom delay, and color settings.
+      class Flower {
+        constructor(x, y, bloomDelay, petalColor, centerColor) {
+          this.x = x;
+          this.y = y;
+          this.bloomDelay = bloomDelay; // Delay (in frames) before this flower starts to bloom
+          this.bloomProgress = 0;       // 0 = not bloomed, 1 = fully bloomed
+          this.petalColor = petalColor;
+          this.centerColor = centerColor;
+        }
+
+        update() {
+          if (frameCount > this.bloomDelay && this.bloomProgress < 1) {
+            // Bloom over roughly 4 seconds (assuming 60fps)
+            this.bloomProgress = min(1, this.bloomProgress + 1 / (60 * 4));
+          }
+        }
+
+        display() {
+          push();
+          translate(this.x, this.y);
+          // Draw stem
+          stroke('#2e7d32'); // Dark green stem
+          strokeWeight(6);
+          line(0, 0, 0, 100);
+
+          // Draw the flower center
+          noStroke();
+          fill(this.centerColor);
+          ellipse(0, 0, 30, 30);
+
+          // Draw petals around the center
+          fill(this.petalColor);
+          let numPetals = 8;
+          let petalLength = 80 * this.bloomProgress;
+          let petalWidth = 40 * this.bloomProgress;
+          for (let i = 0; i < numPetals; i++) {
+            push();
+            rotate((360 / numPetals) * i);
+            // The petal is drawn as an ellipse offset upward
+            ellipse(0, -(petalLength / 2 + 10), petalWidth, petalLength);
+            pop();
+          }
+          pop();
+        }
+      }
+
+      // Rose class: creates small circles (roses) that fall from the top of the screen.
       class Rose {
         constructor(x, y, speed) {
           this.x = x;
           this.y = y;
           this.speed = speed;
-          this.size = random(15, 30);
+          this.size = random(10, 20);
         }
 
         fall() {
           this.y += this.speed;
           if (this.y > height) {
+            // When a rose falls off the bottom, reset it to a random position at the top.
             this.y = random(-50, 0);
             this.x = random(width);
-            this.speed = random(3, 5);
+            this.speed = random(2, 5);
           }
         }
 
         display() {
-          fill('#d81b60'); // Rose color
+          fill('#d81b60'); // A deep rose color
           noStroke();
           ellipse(this.x, this.y, this.size, this.size);
         }
